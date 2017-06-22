@@ -1,7 +1,78 @@
-/**
- * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
- */options{  static = false;}PARSER_BEGIN(NuevoParser)package parser;
+options
+{
+  static = false;
+}
 
-public class NuevoParser{
-  public static void main(String args []) throws ParseException  {    NuevoParser parser = new NuevoParser(System.in);    while (true)    {      System.out.println("Reading from standard input...");      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");      try      {        switch (parser.one_line())        {          case 0 :           System.out.println("OK.");          break;          case 1 :           System.out.println("Goodbye.");          break;          default :           break;        }      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        break;
-      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(NuevoParser)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERATORS */{  < PLUS : "+" >| < MINUS : "-" >| < MULTIPLY : "*" >| < DIVIDE : "/" >}TOKEN :{  < CONSTANT : (< DIGIT >)+ >| < #DIGIT : [ "0"-"9" ] >}int one_line() :{}{  sum() ";"  {    return 0;  }| ";"  {    return 1;  }}void sum() :{}{  term()  (    (      < PLUS >    | < MINUS >    )    term()  )*}void term() :{}{  unary()  (    (      < MULTIPLY >    | < DIVIDE >    )    unary()  )*}void unary() :{}{  < MINUS > element()| element()}void element() :{}{  < CONSTANT >| "(" sum() ")"}
+PARSER_BEGIN(NuevoParser)
+
+package parser;
+
+public class NuevoParser
+{
+  	private Indicador indicador
+  
+	public boolean parsearFormula() throws ParseException
+  	{
+		this.formulaDelIndicador();
+		
+		return true;
+	}
+}
+
+PARSER_END(NuevoParser)
+
+SKIP :
+{
+ "\r"
+| "\t"
+| "\n"
+}
+
+TOKEN :   
+{
+  < SUMA : "+" >
+| < RESTA : "-" >
+| < PRODUCTO : "*" >
+| < DIVISION : "/" >
+}
+
+
+TOKEN :
+{
+  <COEFICIENTE : (<NUMERO>)* <LETRA> (<LETRA> | <NUMERO>)* >
+| <LETRA : ["a"-"z", "A"-"Z"]>
+| <NUMERO : (["0"-"9"])+ | (["0"-"9"])+"."(["0"-"9"])+>
+}
+
+void formulaDelIndicador() :
+{}
+{
+  < COEFICIENTE > "=" ladoDerecho()
+}
+
+void ladoDerecho() :
+{
+	String s = "";
+	Token literalIzq;
+	Token coefIzq;
+	Token literalDer;
+	Token coefDer;
+}
+{
+
+	
+  
+	(
+	  (literalIzq=< NUMERO > { builder.agregarLiteral(literalIzq.image) }| coefIzq=< COEFICIENTE > { builder.agregarCoeficiente(coefIzq.image) }) 
+	  (s=operador() (literalDer=< NUMERO >| coefDer=< COEFICIENTE >))*
+	) { if(s.equals(""))
+			
+	  }
+	
+}
+
+String operador() :
+{Token t;}
+{
+  (t=< SUMA > | t=< RESTA > | t=< PRODUCTO > | t=< DIVISION >){ return t.image; }
+}
